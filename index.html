@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Chatbot Assistant</title>
+  <style>
+    /* CSS Styling */
+    body {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background-color: #f4f4f9;
+    }
+
+    #chatbot-container {
+      width: 300px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      padding: 10px;
+      background-color: #fff;
+    }
+
+    #chat-display {
+      height: 300px;
+      overflow-y: auto;
+      margin-bottom: 10px;
+      padding: 5px;
+      border: 1px solid #ddd;
+      background-color: #f9f9f9;
+    }
+
+    #user-input {
+      width: calc(100% - 60px);
+      padding: 5px;
+    }
+
+    button {
+      padding: 5px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    /* Optional: Add some spacing and styles for messages */
+    .message {
+      margin: 5px 0;
+    }
+
+    .message strong {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <!-- HTML Structure -->
+  <div id="chatbot-container">
+    <h2>Ask the AI Assistant</h2>
+    <div id="chat-display"></div>
+    <input type="text" id="user-input" placeholder="Type your question here..." />
+    <button onclick="sendMessage()">Send</button>
+  </div>
+
+  <script>
+    // JavaScript for Chatbot Functionality
+    async function sendMessage() {
+      const userInput = document.getElementById('user-input').value.trim();
+      if (!userInput) return;
+
+      // Display user's message
+      const chatDisplay = document.getElementById('chat-display');
+      const userMessageDiv = document.createElement('div');
+      userMessageDiv.className = 'message';
+      userMessageDiv.innerHTML = `<strong>You:</strong> ${userInput}`;
+      chatDisplay.appendChild(userMessageDiv);
+      document.getElementById('user-input').value = '';
+
+      // Define your Google Apps Script Web App URL
+      const webAppURL = "https://script.google.com/macros/s/AKfycbwU_t9VmZ4RdhdKKOoe71IuJtUnSZmu30pyIt95-BQ8DXiaqHP_hEtwP6At3Zo59e2x/exec"; // Replace with your actual Web App URL
+
+      // Send user's message to the Apps Script Web App
+      try {
+        const response = await fetch(webAppURL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({ prompt: userInput })
+        });
+
+        if (!response.ok) {
+          throw new Error(`Server error: ${response.status}`);
+        }
+
+        const data = await response.json();
+
+        if (data.error) {
+          throw new Error(data.error);
+        }
+
+        const aiResponse = data.response;
+
+        // Display AI's response
+        const aiMessageDiv = document.createElement('div');
+        aiMessageDiv.className = 'message';
+        aiMessageDiv.innerHTML = `<strong>AI:</strong> ${aiResponse}`;
+        chatDisplay.appendChild(aiMessageDiv);
+        chatDisplay.scrollTop = chatDisplay.scrollHeight;
+      } catch (error) {
+        console.error("Error:", error);
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'message';
+        errorDiv.innerHTML = `<strong>AI:</strong> There was an error processing your request.</div>`;
+        chatDisplay.appendChild(errorDiv);
+        chatDisplay.scrollTop = chatDisplay.scrollHeight;
+      }
+    }
+  </script>
+</body>
+</html>
+
+
